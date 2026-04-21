@@ -1,0 +1,671 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  ShoppingBag, 
+  Search, 
+  Menu, 
+  User, 
+  Heart, 
+  ChevronRight, 
+  Star, 
+  MapPin, 
+  ShieldCheck, 
+  ArrowLeft, 
+  Instagram, 
+  Mail, 
+  X,
+  CheckCircle2,
+  Trash2,
+  Package,
+  BadgeCheck,
+  Zap,
+  Leaf,
+  Send 
+} from 'lucide-react';
+
+// --- CONFIGURATION ---
+const theme = {
+  primary: '#542318',    
+  secondary: '#774A33',  
+  soft: '#987252',       
+  beige: '#B29575',      
+  sage: '#BFBA9D',       
+  white: '#FFFFFF',      
+  bgPink: '#FDF2F2',     
+  heroPink: '#F7D8D8',   
+};
+
+const products = [
+  { id: 1, name: "Skintific Cushion Gold Petal", price: 100000, originalPrice: 180000, condition: "Like New", size: "One Size", category: "Beauty", image: "https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=600", seller: "healthycat", rating: "5.0", desc: "Shade Petal. Exp 12/26. Only swatched once, sterile puff included.", location: "South Jakarta" },
+  { id: 2, name: "Vintage Pleated Midi Skirt", price: 120000, condition: "Lightly Used", size: "L", category: "Fashion", image: "https://images.unsplash.com/photo-1583496661160-c5dcb2241c73?auto=format&fit=crop&q=80&w=600", seller: "livia_af", rating: "4.8", desc: "Beautiful beige skirt. No stains, very well maintained.", location: "Bandung" },
+  { id: 3, name: "Dior Lip Glow Oil", price: 450000, condition: "Brand New", size: "Standard", category: "Beauty", image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&q=80&w=600", seller: "beauty_finds", rating: "4.9", desc: "Sealed in box. 100% Authentic.", location: "North Jakarta" },
+  { id: 4, name: "Oversized Denim Jacket", price: 250000, condition: "Gently Used", size: "M", category: "Fashion", image: "https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&q=80&w=600", seller: "vintage_jkt", rating: "4.7", desc: "Classic denim feel. Slightly faded for that vintage look.", location: "Surabaya" },
+  { id: 5, name: "Rare Beauty Liquid Blush", price: 230000, condition: "Like New", size: "Hope", category: "Beauty", image: "https://images.unsplash.com/photo-1596462502278-27bf85033e5a?auto=format&fit=crop&q=80&w=600", seller: "makeup_stash", rating: "5.0", desc: "Used twice. Extremely pigmented, will last you forever.", location: "Tangerang" },
+  { id: 6, name: "Floral Summer Dress", price: 150000, condition: "Brand New", size: "S", category: "Fashion", image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&q=80&w=600", seller: "chic_closet", rating: "4.6", desc: "Tags still on. Perfect for summer picnics.", location: "Denpasar" },
+  { id: 7, name: "Jo Malone Peony Blush Suede", price: 850000, condition: "80% Full", size: "100ml", category: "Beauty", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=600", seller: "perfume_addict", rating: "4.9", desc: "Stored in cool dark place. Includes original Jo Malone box.", location: "Medan" },
+  { id: 8, name: "Leather Crossbody Bag", price: 320000, condition: "Well Loved", size: "One Size", category: "Fashion", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&q=80&w=600", seller: "bag_lover", rating: "4.5", desc: "Genuine leather. Some scratches on hardware but still stylish.", location: "Bekasi" },
+];
+
+const formatIDR = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [cartCount, setCartCount] = useState(0);
+  const [isToastVisible, setIsToastVisible] = useState(false);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter(p => 
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.seller.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentPage]);
+
+  const navigateTo = (page, product = null) => {
+    if (product) setSelectedProduct(product);
+    setCurrentPage(page);
+    setIsMobileMenuOpen(false);
+    if (!['listing', 'detail'].includes(page)) setSearchQuery('');
+  };
+
+  const handleAddToCart = () => {
+    setCartCount(prev => prev + 1);
+    setIsToastVisible(true);
+    setTimeout(() => setIsToastVisible(false), 3000);
+  };
+
+  // --- CONTENT DATA (Translated) ---
+  const pagesData = {
+    about: {
+      title: "About Us",
+      type: "text",
+      content: [
+        "REKIND is a curated secondhand beauty and fashion platform that transforms unused items into valuable products.",
+        "We focus on reducing waste caused by purchasing mistakes such as wrong sizes, shade mismatches, or blind-buy regrets.",
+        "By implementing a strict curation and quality control process, REKIND ensures that every product is still in good condition, trusted, and worth buying.",
+        "Our mission is to make secondhand shopping more structured, reliable, and accessible to everyone."
+      ]
+    },
+    story: {
+      title: "Our Story",
+      type: "text",
+      content: [
+        "REKIND was inspired by a common problem among consumers — purchasing beauty and fashion products that end up unused.",
+        "Many items are still in great condition but are often left in closets or eventually wasted. At the same time, people struggle to resell these items due to complicated processes and lack of trust in existing platforms.",
+        "REKIND was created to bridge this gap by providing a curated and reliable solution that turns unused products into meaningful value."
+      ]
+    },
+    howitworks: {
+      title: "How It Works",
+      type: "steps",
+      content: [
+        { title: "Sell Your Items", desc: "Customers send their unused but eligible products to REKIND.", icon: <Send size={24}/> },
+        { title: "QC & Curation", desc: "We inspect, verify, and select only the products that meet our standards.", icon: <ShieldCheck size={24}/> },
+        { title: "Pricing & Listing", desc: "Products are priced and categorized based on condition, demand, and brand value.", icon: <Zap size={24}/> },
+        { title: "Resale to New Owners", desc: "Curated products are featured on our platform and ready to find a new home.", icon: <Package size={24}/> }
+      ]
+    },
+    sustainability: {
+      title: "Sustainability",
+      type: "text",
+      content: [
+        "REKIND promotes a more sustainable way of consuming beauty and fashion products.",
+        "By extending product lifecycles, we help reduce textile waste and unnecessary consumption.",
+        "Instead of throwing items away, REKIND encourages reuse, making fashion and beauty more responsible and eco-friendly."
+      ]
+    },
+    careers: {
+      title: "Careers",
+      type: "list",
+      header: "Join us in building a more sustainable and innovative future in fashion and beauty. We are looking for passionate individuals in:",
+      items: ["Marketing & Content", "Operations & Quality Control", "Product Development"],
+      footer: "Send your CV to: careers@rekind.id"
+    },
+    faq: {
+      title: "FAQ",
+      type: "qa",
+      content: [
+        { q: "Are all products authentic?", a: "Yes, all products go through our verification process before being sold." },
+        { q: "Can I sell my items on REKIND?", a: "Yes, you can submit your items and we will review them." },
+        { q: "What is the condition of the products?", a: "Only products in good and usable condition are accepted." },
+        { q: "Are prices negotiable?", a: "No, all prices are standardized by REKIND." }
+      ]
+    },
+    shipping: {
+      title: "Shipping & Returns",
+      type: "text_blocks",
+      blocks: [
+        { title: "Shipping", text: "We ship products using trusted logistics partners. Delivery times may vary depending on location." },
+        { title: "Returns", text: "Returns are only accepted if the product does not match the description or has undisclosed defects." }
+      ]
+    },
+    authprocess: {
+      title: "Authentication Process",
+      type: "list",
+      header: "REKIND applies strict quality control and verification processes to ensure product quality and authenticity.",
+      items: [
+        "Product condition inspection",
+        "Brand and authenticity check",
+        "Cleaning and repacking (if required)",
+        "Accurate product description"
+      ],
+      footer: "This ensures customers receive products they can trust."
+    },
+    contact: {
+      title: "Contact Us",
+      type: "contact",
+      header: "Have questions or need help?",
+      email: "support@rekind.id",
+      instagram: "@rekind.id"
+    }
+  };
+
+  // --- REUSABLE COMPONENTS ---
+
+  const Logo = ({ className = "h-10" }) => (
+    <div className={`flex items-center gap-3 cursor-pointer ${className}`} onClick={() => navigateTo('home')}>
+       <div className="flex flex-col -space-y-1">
+        <span className="font-bold text-2xl tracking-tighter" style={{ color: theme.primary }}>REKIND</span>
+        <span className="text-[0.5rem] tracking-[0.2em] font-bold uppercase opacity-60" style={{ color: theme.primary }}>Beauty & Fashion</span>
+      </div>
+    </div>
+  );
+
+  const CustomButton = ({ children, variant = 'primary', className = '', onClick, fullWidth, type = "button" }) => {
+    const base = "px-6 py-3 rounded-full font-bold transition-all duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-widest";
+    const styles = {
+      primary: { backgroundColor: theme.primary, color: 'white' },
+      outline: { border: `2px solid ${theme.primary}`, color: theme.primary },
+      sage: { backgroundColor: theme.sage, color: theme.primary },
+      ghost: { color: theme.primary }
+    };
+    
+    return (
+      <button 
+        type={type}
+        onClick={onClick}
+        className={`${base} ${fullWidth ? 'w-full' : ''} ${className} hover:opacity-90 active:scale-95`}
+        style={styles[variant]}
+      >
+        {children}
+      </button>
+    );
+  };
+
+  const ProductCard = ({ product }) => (
+    <div 
+      className="group cursor-pointer bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-full border border-white hover:border-[#B29575]/20"
+      onClick={() => navigateTo('detail', product)}
+    >
+      <div className="relative aspect-[3/4] overflow-hidden bg-[#FDF2F2]">
+        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+        <div className="absolute top-4 right-4 p-2 bg-white/80 backdrop-blur-md rounded-full text-[#987252] hover:text-[#542318] transition-colors shadow-sm">
+          <Heart size={16} />
+        </div>
+        <div className="absolute bottom-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-md text-[9px] font-black rounded-full uppercase tracking-widest shadow-sm" style={{ color: theme.primary }}>
+          {product.condition}
+        </div>
+      </div>
+      <div className="p-6 flex flex-col flex-1">
+        <h3 className="font-bold text-sm line-clamp-1 mb-1" style={{ color: theme.primary }}>{product.name}</h3>
+        <p className="font-bold text-lg mb-4" style={{ color: theme.primary }}>{formatIDR(product.price)}</p>
+        <div className="mt-auto flex justify-between items-center text-[10px] font-bold uppercase tracking-widest opacity-40">
+          <span>{product.size}</span>
+          <span className="flex items-center gap-1"><Star size={12} fill={theme.beige} color={theme.beige} className="mb-0.5" /> {product.rating}</span>
+        </div>
+      </div>
+    </div>
+  );
+
+  // --- VIEWS ---
+
+  const Navbar = () => (
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-[#B29575]/10 h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
+        <div className="flex items-center gap-6">
+          <button className="lg:hidden" onClick={() => setIsMobileMenuOpen(true)}>
+            <Menu size={24} color={theme.primary} />
+          </button>
+          <Logo />
+        </div>
+
+        <div className="hidden lg:flex items-center gap-8">
+          {['Fashion', 'Beauty', 'New Arrivals', 'Used'].map(item => (
+            <button 
+              key={item}
+              onClick={() => navigateTo('listing')}
+              className="text-[10px] uppercase font-black tracking-[0.25em] hover:opacity-50 transition-opacity"
+              style={{ color: theme.primary }}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3 sm:gap-6">
+          <div className="hidden md:flex items-center bg-[#FDF2F2] rounded-full px-4 py-2 border border-[#B29575]/10">
+            <Search size={16} color={theme.soft} />
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (currentPage !== 'listing') setCurrentPage('listing');
+              }}
+              placeholder="Search items..." 
+              className="bg-transparent border-none outline-none ml-2 text-xs w-32 placeholder:text-[#987252]" 
+            />
+          </div>
+          <button onClick={() => navigateTo('auth')} className="hover:opacity-60 transition-all"><User size={20} color={theme.primary} /></button>
+          <button className="relative hover:opacity-60 transition-all">
+            <ShoppingBag size={20} color={theme.primary} />
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-[#542318] text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
+          </button>
+          <CustomButton variant="primary" className="hidden lg:flex !py-2 !px-4 text-[10px]" onClick={() => navigateTo('auth')}>Sell Now</CustomButton>
+        </div>
+      </div>
+
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[100] bg-white p-8 animate-in fade-in slide-in-from-left duration-300">
+          <div className="flex justify-between items-center mb-12">
+            <Logo />
+            <button onClick={() => setIsMobileMenuOpen(false)}><X size={28} /></button>
+          </div>
+          <div className="flex flex-col gap-6">
+            {['Fashion', 'Beauty', 'About Us', 'Contact Us'].map(link => (
+              <button 
+                key={link} 
+                onClick={() => {
+                   if (link === 'About Us') navigateTo('about');
+                   else if (link === 'Contact Us') navigateTo('contact');
+                   else navigateTo('listing');
+                }}
+                className="text-3xl font-serif font-bold text-left" 
+                style={{ color: theme.primary }}
+              >
+                {link}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+
+  const HomeView = () => (
+    <div className="animate-in fade-in duration-700">
+      <section className="relative mx-4 sm:mx-8 mt-6 rounded-[3rem] overflow-hidden bg-[#F7D8D8] py-20 lg:py-0 lg:h-[75vh] flex items-center">
+        <div className="max-w-7xl mx-auto px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="text-center lg:text-left">
+            <h1 className="text-5xl md:text-7xl font-serif font-bold leading-tight mb-8" style={{ color: theme.primary }}>
+              Reimagine <br /><span className="italic opacity-70 font-normal">Sustainability.</span>
+            </h1>
+            <p className="text-lg opacity-70 mb-10 max-w-md mx-auto lg:mx-0 leading-relaxed font-medium">
+              Premium curation for fashion & beauty. We give a second life to your favorite pre-loved pieces.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <CustomButton variant="primary" className="px-10 py-4" onClick={() => navigateTo('listing')}>Explore Collection</CustomButton>
+              <CustomButton variant="outline" className="px-10 py-4" onClick={() => navigateTo('auth')}>Start Selling</CustomButton>
+            </div>
+          </div>
+          <div className="hidden lg:block relative">
+            <div className="relative aspect-square w-full max-w-lg mx-auto rounded-[4rem] overflow-hidden shadow-2xl rotate-2">
+              <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=800" className="w-full h-full object-cover" alt="Fashion" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 py-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { name: "Casual Style", img: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=600" },
+            { name: "Branded Beauty", img: "https://images.unsplash.com/photo-1596462502278-27bf85033e5a?auto=format&fit=crop&q=80&w=600" },
+            { name: "Street Wear", img: "https://images.unsplash.com/photo-1550614000-4b95d466f658?auto=format&fit=crop&q=80&w=600" },
+          ].map((cat, i) => (
+            <div key={i} className="group relative h-[25rem] rounded-[2.5rem] overflow-hidden cursor-pointer" onClick={() => navigateTo('listing')}>
+              <img src={cat.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={cat.name} />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#542318]/80 via-transparent flex items-end p-8">
+                <h3 className="text-white text-2xl font-serif font-bold">{cat.name}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-white py-24">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-4xl font-serif font-bold mb-2" style={{ color: theme.primary }}>Hot Drops</h2>
+              <p className="opacity-50 text-xs font-bold uppercase tracking-widest">New products added daily</p>
+            </div>
+            <CustomButton variant="ghost" onClick={() => navigateTo('listing')}>View All <ChevronRight size={14}/></CustomButton>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-10">
+            {products.slice(0, 4).map(p => <ProductCard key={p.id} product={p} />)}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+
+  const ListingView = () => (
+    <div className="max-w-7xl mx-auto px-4 py-16 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
+        <div>
+          <h1 className="text-4xl font-serif font-bold mb-2" style={{ color: theme.primary }}>
+            {searchQuery ? `Results for "${searchQuery}"` : "All Collections"}
+          </h1>
+          <p className="text-xs opacity-50 font-bold uppercase tracking-widest">{filteredProducts.length} items found</p>
+        </div>
+        <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 no-scrollbar">
+          {['All', 'Beauty', 'Fashion', 'New', 'Used'].map(tag => (
+            <button key={tag} className="px-5 py-2 rounded-full bg-white border border-[#B29575]/20 text-[10px] font-black uppercase tracking-widest hover:bg-[#FDF2F2] transition-colors whitespace-nowrap">
+              {tag}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filteredProducts.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {filteredProducts.map(p => <ProductCard key={p.id} product={p} />)}
+        </div>
+      ) : (
+        <div className="text-center py-40 bg-white rounded-[3rem] border-2 border-dashed border-[#B29575]/20">
+          <div className="bg-[#FDF2F2] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-[#987252]">
+             <Search size={32} />
+          </div>
+          <h2 className="text-2xl font-serif font-bold mb-2" style={{ color: theme.primary }}>No results found</h2>
+          <p className="opacity-50 text-sm mb-8">Try adjusting your search keywords or filters.</p>
+          <CustomButton variant="primary" onClick={() => setSearchQuery('')}>Clear Search</CustomButton>
+        </div>
+      )}
+    </div>
+  );
+
+  const DetailView = () => (
+    <div className="max-w-7xl mx-auto px-4 py-12 animate-in fade-in slide-in-from-bottom-6 duration-500">
+      <button onClick={() => navigateTo('listing')} className="flex items-center gap-2 mb-10 text-[10px] font-black uppercase tracking-widest hover:opacity-50 transition-opacity" style={{ color: theme.primary }}>
+        <ArrowLeft size={16} /> Back to collection
+      </button>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="space-y-6">
+          <div className="aspect-[4/5] rounded-[3rem] overflow-hidden bg-white shadow-xl border-4 border-white">
+            <img src={selectedProduct.image} className="w-full h-full object-cover" alt={selectedProduct.name} />
+          </div>
+        </div>
+
+        <div className="flex flex-col py-6">
+          <div className="mb-10">
+            <div className="flex items-center gap-3 mb-6">
+               <span className="px-3 py-1 bg-[#BFBA9D]/40 rounded-full text-[9px] font-black uppercase tracking-widest">{selectedProduct.condition}</span>
+               <span className="px-3 py-1 bg-white border border-[#B29575]/20 rounded-full text-[9px] font-black uppercase tracking-widest">{selectedProduct.category}</span>
+            </div>
+            <h1 className="text-5xl font-serif font-bold mb-6 leading-tight" style={{ color: theme.primary }}>{selectedProduct.name}</h1>
+            <div className="flex items-center gap-4">
+               <span className="text-4xl font-bold" style={{ color: theme.primary }}>{formatIDR(selectedProduct.price)}</span>
+               {selectedProduct.originalPrice && (
+                 <span className="text-lg line-through opacity-30 font-bold">{formatIDR(selectedProduct.originalPrice)}</span>
+               )}
+            </div>
+          </div>
+
+          <div className="bg-white p-8 rounded-[2.5rem] shadow-sm mb-12 border border-[#FDF2F2]">
+            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[#FDF2F2]">
+               <div className="w-12 h-12 rounded-full bg-[#B29575]/20 flex items-center justify-center font-bold text-[#542318]">{selectedProduct.seller[0].toUpperCase()}</div>
+               <div>
+                  <h4 className="font-bold text-sm">{selectedProduct.seller}</h4>
+                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 flex items-center gap-1">
+                    <Star size={10} fill={theme.beige} color={theme.beige} /> {selectedProduct.rating} Rating
+                  </p>
+               </div>
+            </div>
+            <p className="text-sm leading-relaxed opacity-60 mb-8">{selectedProduct.desc}</p>
+            <div className="flex flex-wrap gap-6 text-[10px] font-black uppercase tracking-[0.2em] opacity-40">
+               <span className="flex items-center gap-2"><MapPin size={14}/> {selectedProduct.location}</span>
+               <span className="flex items-center gap-2"><ShieldCheck size={14}/> Verified Authenticity</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 mt-auto">
+             <CustomButton variant="primary" fullWidth className="py-5" onClick={handleAddToCart}>Add to Bag</CustomButton>
+             <CustomButton variant="outline" fullWidth className="py-5">Make an Offer</CustomButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const InfoView = ({ data }) => {
+    const { title, content, type, header, footer, items, blocks, email, instagram } = data;
+
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-24 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <h1 className="text-5xl font-serif font-bold mb-12 text-center" style={{ color: theme.primary }}>{title}</h1>
+        <div className="bg-white p-10 md:p-16 rounded-[4rem] shadow-xl border border-[#FDF2F2]">
+          
+          {type === 'text' && content.map((p, i) => (
+            <p key={i} className="text-lg leading-relaxed mb-8 opacity-70" style={{ color: theme.secondary }}>{p}</p>
+          ))}
+
+          {type === 'steps' && (
+            <div className="grid grid-cols-1 gap-12">
+              {content.map((step, i) => (
+                <div key={i} className="flex gap-8 group">
+                  <div className="w-16 h-16 shrink-0 rounded-3xl bg-[#FDF2F2] flex items-center justify-center text-[#542318] group-hover:bg-[#542318] group-hover:text-white transition-all duration-500">
+                    {step.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-serif font-bold mb-2" style={{ color: theme.primary }}>{step.title}</h3>
+                    <p className="opacity-60 leading-relaxed">{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {type === 'list' && (
+            <div>
+              <p className="text-lg mb-8 opacity-70 font-medium">{header}</p>
+              <ul className="space-y-4 mb-10">
+                {items.map((item, i) => (
+                  <li key={i} className="flex items-center gap-4 text-lg text-[#774A33]">
+                    <div className="w-2 h-2 rounded-full bg-[#BFBA9D]"></div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <div className="p-6 bg-[#FDF2F2] rounded-3xl text-center font-bold" style={{ color: theme.primary }}>
+                {footer}
+              </div>
+            </div>
+          )}
+
+          {type === 'qa' && (
+            <div className="space-y-8">
+              {content.map((item, i) => (
+                <div key={i} className="p-8 rounded-3xl bg-[#FDF2F2]/50 border border-white">
+                  <h4 className="text-lg font-bold mb-3" style={{ color: theme.primary }}>Q: {item.q}</h4>
+                  <p className="opacity-70 leading-relaxed">A: {item.a}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {type === 'text_blocks' && (
+            <div className="space-y-12">
+              {blocks.map((b, i) => (
+                <div key={i}>
+                  <h3 className="text-2xl font-serif font-bold mb-4 flex items-center gap-3" style={{ color: theme.primary }}>
+                    {b.title === "Shipping" ? <Package size={24}/> : <Trash2 size={24}/>}
+                    {b.title}
+                  </h3>
+                  <p className="text-lg opacity-70 leading-relaxed">{b.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {type === 'contact' && (
+            <div>
+              <p className="text-xl mb-12 text-center opacity-70">{header}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+                <a href={`mailto:${email}`} className="flex items-center justify-center gap-4 p-8 rounded-[2.5rem] bg-[#FDF2F2] hover:bg-[#542318] hover:text-white transition-all group">
+                  <Mail size={24} className="group-hover:scale-110 transition-transform"/>
+                  <span className="font-bold">{email}</span>
+                </a>
+                <a href={`https://instagram.com/${instagram.replace('@', '')}`} className="flex items-center justify-center gap-4 p-8 rounded-[2.5rem] bg-[#FDF2F2] hover:bg-[#542318] hover:text-white transition-all group">
+                  <Instagram size={24} className="group-hover:scale-110 transition-transform"/>
+                  <span className="font-bold">{instagram}</span>
+                </a>
+              </div>
+              <form className="space-y-6 pt-12 border-t border-[#FDF2F2]" onSubmit={(e) => { e.preventDefault(); alert("Message sent!"); }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <input type="text" placeholder="Name" className="w-full p-4 rounded-2xl bg-[#FDF2F2] outline-none font-medium" required />
+                   <input type="email" placeholder="Email" className="w-full p-4 rounded-2xl bg-[#FDF2F2] outline-none font-medium" required />
+                </div>
+                <textarea placeholder="Message" rows="4" className="w-full p-4 rounded-2xl bg-[#FDF2F2] outline-none font-medium" required></textarea>
+                <CustomButton variant="primary" fullWidth className="py-5">Send Message</CustomButton>
+              </form>
+            </div>
+          )}
+
+        </div>
+      </div>
+    );
+  };
+
+  const AuthView = () => (
+    <div className="min-h-[80vh] flex items-center justify-center px-4 py-20">
+      <div className="bg-white p-12 rounded-[4rem] shadow-2xl w-full max-w-md border border-[#FDF2F2]">
+        <div className="text-center mb-10">
+          <Logo className="h-12 mx-auto justify-center mb-6" />
+          <h2 className="text-3xl font-serif font-bold" style={{ color: theme.primary }}>Welcome Back</h2>
+          <p className="text-sm opacity-50 mt-2">Log in to your sustainable closet.</p>
+        </div>
+        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); navigateTo('home'); }}>
+          <div className="space-y-1">
+             <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-4">Email</label>
+             <input type="email" placeholder="hello@rekind.id" className="w-full p-4 rounded-2xl bg-[#FDF2F2] outline-none text-sm font-bold" required />
+          </div>
+          <div className="space-y-1">
+             <label className="text-[10px] font-black uppercase tracking-widest opacity-40 ml-4">Password</label>
+             <input type="password" placeholder="••••••••" className="w-full p-4 rounded-2xl bg-[#FDF2F2] outline-none text-sm font-bold" required />
+          </div>
+          <CustomButton type="submit" variant="primary" fullWidth className="py-5">Log In</CustomButton>
+        </form>
+        <div className="mt-8 text-center">
+           <p className="text-xs opacity-50 mb-2">Don't have an account?</p>
+           <button className="text-xs font-black uppercase tracking-widest underline" style={{ color: theme.primary }}>Sign Up Now</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const Footer = () => (
+    <footer className="bg-white pt-24 pb-12 mt-20 border-t border-[#B29575]/10">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
+          <div>
+            <Logo className="h-10 mb-8" />
+            <p className="text-sm opacity-50 leading-relaxed max-w-xs">
+              A curated secondhand beauty and fashion platform, transforming waste into value through trusted authentication.
+            </p>
+            <div className="flex gap-4 mt-8">
+               <button onClick={() => navigateTo('contact')} className="w-10 h-10 rounded-full bg-[#FDF2F2] flex items-center justify-center text-[#542318] hover:bg-[#542318] hover:text-white transition-all"><Instagram size={18}/></button>
+               <button onClick={() => navigateTo('contact')} className="w-10 h-10 rounded-full bg-[#FDF2F2] flex items-center justify-center text-[#542318] hover:bg-[#542318] hover:text-white transition-all"><Mail size={18}/></button>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-8" style={{ color: theme.primary }}>Company</h4>
+            <ul className="space-y-4">
+              {[
+                { label: 'About Us', id: 'about' },
+                { label: 'Our Story', id: 'story' },
+                { label: 'Sustainability', id: 'sustainability' },
+                { label: 'How It Works', id: 'howitworks' },
+                { label: 'Careers', id: 'careers' }
+              ].map(item => (
+                <li key={item.id}>
+                  <button onClick={() => navigateTo(item.id)} className="text-xs opacity-50 hover:opacity-100 transition-opacity">{item.label}</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-8" style={{ color: theme.primary }}>Support</h4>
+            <ul className="space-y-4">
+              {[
+                { label: 'FAQ', id: 'faq' },
+                { label: 'Shipping', id: 'shipping' },
+                { label: 'Authentication Process', id: 'authprocess' },
+                { label: 'Contact Us', id: 'contact' }
+              ].map(item => (
+                <li key={item.id}>
+                  <button onClick={() => navigateTo(item.id)} className="text-xs opacity-50 hover:opacity-100 transition-opacity">{item.label}</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] mb-8" style={{ color: theme.primary }}>Newsletter</h4>
+            <p className="text-xs opacity-50 mb-6">Get early access to our latest collections.</p>
+            <div className="relative">
+              <input type="email" placeholder="Your email" className="w-full bg-[#FDF2F2] p-3 pl-5 rounded-full text-xs outline-none" />
+              <button className="absolute right-2 top-1.5 p-1.5 bg-[#542318] text-white rounded-full"><ChevronRight size={14}/></button>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-12 border-t border-[#FDF2F2]">
+          <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-30">© 2026 REKIND Indonesia. Guaranteed Authenticity.</p>
+          <div className="flex gap-8 text-[9px] font-black uppercase tracking-[0.2em] opacity-30">
+             <button className="hover:opacity-100 transition-opacity">Privacy Policy</button>
+             <button className="hover:opacity-100 transition-opacity">Terms & Conditions</button>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+
+  return (
+    <div className="min-h-screen font-sans selection:bg-[#BFBA9D]/30" style={{ backgroundColor: theme.bgPink }}>
+      <Navbar />
+      
+      <main>
+        {currentPage === 'home' && <HomeView />}
+        {currentPage === 'listing' && <ListingView />}
+        {currentPage === 'detail' && selectedProduct && <DetailView />}
+        {currentPage === 'auth' && <AuthView />}
+        {pagesData[currentPage] && <InfoView data={pagesData[currentPage]} />}
+      </main>
+
+      <Footer />
+
+      {isToastVisible && (
+        <div className="fixed bottom-10 right-4 left-4 md:left-auto md:right-10 z-[200] animate-in slide-in-from-bottom-10">
+           <div className="bg-white rounded-3xl p-5 shadow-2xl flex items-center gap-4 border border-[#BFBA9D]/30">
+              <div className="bg-[#BFBA9D] text-white p-2 rounded-full"><CheckCircle2 size={24}/></div>
+              <div>
+                 <p className="font-bold text-sm" style={{ color: theme.primary }}>Success!</p>
+                 <p className="text-[10px] opacity-60">Item has been added to your bag.</p>
+              </div>
+              <button onClick={() => setIsToastVisible(false)} className="ml-4 opacity-30"><X size={20}/></button>
+           </div>
+        </div>
+      )}
+    </div>
+  );
+}
